@@ -1,7 +1,26 @@
+from glossary import *
+from decode import *
 
 
-import glossary
+def reader(string):
 
-def registerToBin(register_name): #Receives a register name, looks it up, and returns its binary value
+    instruction = string.split(' ')
+    
+    for i in range(len(instruction)):
+        instruction[i] = instruction[i].replace(',','')
 
-    return bin(registers[register_name[1:]])[2:]  #converts the register value to binary
+    inst_type = whatType[instruction[0]]
+    
+    if inst_type == 'j':
+        binary = J(instruction)
+
+    elif inst_type == 'r':
+        binary = R(instruction)
+
+    elif inst_type == 'i':
+        binary = I(instruction)
+
+    return binary
+
+
+print(reader('add $t2, $t1, $t3'))

@@ -1,89 +1,78 @@
-import glossary
-
+from glossary import *
+from translation import *
 from numpy import *
 
-#This module will help us translate each instruction into its binary equivalent
+#This module will help us translate each instruction into its binary equivalent depending on the type of each instruction
 
 
 def J(instruction):
 
     result = []
     # OPCODE
-    opcode = opcode_funct[instruction[0]][0]  #Obtain opcode from glossary
-    result.append(bin(opcode)[2:].zfill(6))   # Fill the rest with zeros because opcode is 6 bits
-                                              #We must remove the initial two zeroes appended by the bin function
 
-    #IMMEDIATE
-    location = int(int(instruction[1]) / 4) #Does the shift left of the jump location
-    imm = bin(loc)[2:].zfill(26)   # Fills the rest of the instruction with zeroes to complete 26 bits
-    result.append(imm)             # We append the binary jump location to the binary list
+    result.append(opcodeToBin(instruction[0])) #add opcode to the converted binary
 
-    bin_val = ''.join(result)
+    #ADDRESS
+        
+    result.append(addressToBin(instruction[1]))    #add the address to the converted binary list
 
-    return (bin_val)
+    bin_val = ''.join(result)               #We convert the concatenated result into a string
+
+    return (bin_val)                        #We return the converted binary  string
 
 def R(instruction):
 
     result = []
-    shift_amount = 0   #We initialize each R instruction with a shamt of zero
+    shift_amount = '0'                                  #we initialize each R instruction with a shamt of zero
 
 
     # OPCODE
-    opcode = opcode_funct[instruction[0]][0]  #Obtain opcode from glossary
-    result.append(bin(opcode)[2:].zfill(6))  # Fill the rest with zeros because opcode must be 6 bits long
-                                             #We must remove the initial two zeroes appended by the bin function
-
-    #SHAMT EXCEPTIONS
-
-    if instruction[0] == 'srl' or instruction[0] == 'sll': #These are the only instructions that use a shamt
-
-        shift_amount = int(instruction[3])      #We must retrieve the shift amount
-
-        result.append(bin(0).zfill(5))          #rs is not used so we zero fill it   
-
-        rt = registerToBin(instruction[2])      #get rt and convert it to binary
-        result.append(rt.zfill(5))              #add rt to the converted binary
-
-        rd = registerToBin(instruction[1])
-        result.append(rd.zfill(5))              #get rd and convert it to binary
-
+    result.append(opcodeToBin(instruction[0]))            #add opcode to the converted binary list
+                            
 
     #JR EXCEPTION
-    elif instruction[0] == 'jr':
+    if instruction[0] == 'jr':                          #only R type that does not use rt and rd
         
-        rs = registerToBin(instruction[1])
-        result.append(rs.zfill(5))
 
-        result.append(bin(0).zfill(5))          #rt is not used so we zero fill it   
-        result.append(bin(0).zfill(5))          #rd is not used so we zero fill it   
+        result.append(registerToBin(instruction[1]))      #add rs to the converted binary list
+
+        result.append(bin(0).zfill(5))                    #rt is not used so we zero fill it   
+        result.append(bin(0).zfill(5))                    #rd is not used so we zero fill it   
+
+
+     #SHAMT EXCEPTIONS
+
+    elif instruction[0] == 'srl' or instruction[0] == 'sll': #These are the only instructions that use a shamt
+
+        shift_amount = instruction[3]                      #We must retrieve the shift amount
+
+        result.append(bin(0)[2:].zfill(5))                 #rs is not used so we zero fill it   
+
+        result.append(registerToBin(instruction[2]))       #add rt to the converted binary list
+
+        result.append(registerToBin(instruction[1]))       #add rd to the converted binary list
 
 
     else:
     #REST OF R TYPE CASES
 
-        #rs
-        rs = registerToBin(instruction[2])      #get rs and convert it to binary
-        result.append(rs.zfill(5)) 
+      
+        result.append(registerToBin(instruction[2]))    #add rs to the converted binary list
 
-        #rt
-        rt = registerToBin(instruction[3])      #get rt and convert it to binary
-        result.append(rt.zfill(5)) 
-
-        #rd
-        rd = registerToBin(instruction[1])
-        result.append(rd.zfill(5))              #get rd and convert it to binary
+        result.append(registerToBin(instruction[3]))    #add rt to the converted binary list
+       
+        result.append(registerToBin(instruction[1]))    #add rd to the converted binary list
 
 
-    result.append(bin(shift)[2:].zfill(5))      # we append the shift amount
-    func = opcode_funct[instruction[0]][1]   
-    result.append(bin(func).zfill(6))           # we append the func
+    result.append(shiftToBin(shift_amount))             #add shift amount to the converted binary list
+   
+    result.append(functToBin(instruction[0]))           #add func to the converted binary list
 
 
-    bin_val = ''.join(result)
+    bin_val = ''.join(result)                   #We convert the list result into a string
 
 
-    return (bin_val)
-
+    return (bin_val)                            #We return the string
 
 def I(instruction):
 
@@ -91,92 +80,70 @@ def I(instruction):
     imm = 0
 
     # OPCODE
-    opcode = opcode_funct[instruction[0]][0]  #Obtain opcode from glossary
-    result.append(bin(opcode)[2:].zfill(6))  # Fill the rest with zeros because opcode must be 6 bits long
-                                             #We must remove the initial two zeroes appended by the bin function
+    result.append(opcodeToBin(instruction[0])) #add opcode to the converted binary
 
-    #OFFSET EXCEPTIONS
-    if instruction[0] == 'sw':
+
+    #OFFSET EXCEPTIONS (DATA TRANSFER)
+    if instruction[0] == 'sw' or instruction[0] == 'lw' or instruction[0] == 'lh' or instruction[0] == 'lhu' or instruction[0] == 'sh' or instruction[0] == 'lb' or instruction[0] == 'lbu' or instruction[0] == 'sb' or instruction[0] == 'll' or instruction[0] == 'sc':
 
         
-        offset_base = instruction[1].split('(') #We must separate the immediate offset from the base register
+        offset_base = instruction[2].split('(')         #We must separate the immediate offset from the base register
+        offset_base[1] = offset_base[:-1]               #We must remove the ')'from the register name
         
-        rs = registerToBin(offset_base[1]) #get rs (base) and convert it to binary
-        result.append(rs.zfill(5))
+        result.append(registerToBin(offset_base[1]))               #add rs to the converted binary list
+         
+        result.append(registerToBin(instruction[1]))               #add rt to the converted binary list
 
-        rt = registerToBin(instruction[2]) #get rt and convert it to binary
-        result.append(rt.zfill(5)) 
+        result.append(SignExtendedImmediateToBin(offset_base[0]))   #add the sign extended immediate to the converted binary
 
-        imm = bin(offset_base[0])[:2] #get immediate (offset) and convert it to binary
-
-    
-
-    elif instruction[0] == 'lw':
-
-        offset_base = instruction[2].split('(') #We must separate the immediate offset from the base register
-        
-        rs = registerToBin(offset_base[1]) #get rs (base) and convert it to binary
-        result.append(rs.zfill(5))
-
-        rt = registerToBin(instruction[1]) #get rt and convert it to binary
-        result.append(rt.zfill(5)) 
-
-
-        imm = bin(offset_base[0])[:2] #get immediate (offset) and convert it to binary
-        
-
-
+                          
     #BRANCH
     elif instruction[0] == 'beq' or instruction[0] == 'bne':
 
-        
-        rs = registerToBin(instruction[1]) #get rs (base) and convert it to binary
-        result.append(rs.zfill(5))
+        result.append(registerToBin(instruction[1]))    #add rs to the converted binary list
 
-        rt = registerToBin(instruction[2]) #get rt and convert it to binary
-        result.append(rt.zfill(5)) 
+        result.append(registerToBin(instruction[2]))    #add rt to the converted binary list
 
-        #NO ESTA BIEN HAY QUE CORREGIR PORFAVOR NICOLASIO
-        branch = bin(instruction[3])[:2] #get immediate (offset) and convert it to binary
-        result.append(branch.zfill(16))     
-
-
-    #SIGN EXTEND IMMEDIATE
-
-
-    elif instruction[0] == 'addi' or instruction[0] == 'slti' or instruction[0] == 'sltiu' or instruction[0] == 'addiu'  or instruction[0] == 'll'
-                            or instruction[0] == 'sh':
-
-        
-        rs = registerToBin(instruction[1]) #get rs (base) and convert it to binary
-        result.append(rs.zfill(5))
-
-        rt = registerToBin(instruction[2]) #get rt and convert it to binary
-        result.append(rt.zfill(5)) 
-
-        #NO ESTA BIEN HAY QUE CORREGIR PORFAVOR NICOLASIO
-        branch = bin(instruction[3])[:2] #get immediate (offset) and convert it to binary
-        result.append(branch.zfill(16))     
-
-
+        result.append(branchToBin(instruction[3]))      #add branch (immediate) to the converted binary
+    
 
     #ZERO EXTEND IMMEDIATE
+    elif instruction[0] == 'andi' or instruction[0] == 'ori':
 
-        rs = registerToBin(instruction[1]) #get rs (base) and convert it to binary
-        result.append(rs.zfill(5))
+        
+        result.append(registerToBin(instruction[1]))  #add rs to the converted binary list
 
-        rt = registerToBin(instruction[2]) #get rt and convert it to binary
-        result.append(rt.zfill(5)) 
+        result.append(registerToBin(instruction[2]))  #add rt to the converted binary list
+        
+        result.append(ZeroExtendedImmediateToBin(instruction[3])) #add zero extended immediate to the converted binary list     
 
-        #NO ESTA BIEN HAY QUE CORREGIR PORFAVOR NICOLASIO
-        branch = bin(instruction[3])[:2] #get immediate (offset) and convert it to binary
-        result.append(branch.zfill(16))     
+    #LUI
 
+    elif instruction[0] == 'lui':
 
+        result.append(bin(0).zfill(5) )               # does not use rs so we zero fill it and add it to the converted binary list
 
+        result.append(registerToBin(instruction[1]))  # add rt to the converted binary list
+        
+        result.append(ZeroExtendedImmediateToBin(instruction[2])) #add zero extended immediate to the converted binary list     
 
-    
+ 
     #OTHER
 
+    else:
 
-    result.append(imm.zfill(16)).zfill(16)  
+        result.append(registerToBin(instruction[2]))                   #add rs to the converted binary list
+
+        result.append(registerToBin(instruction[1]))                   #add rt to the converted binary list
+
+        result.append(ZeroExtendedImmediateToBin(instruction[3]))      #add branch (immediate) to the converted binary
+
+
+ 
+    bin_val = ''.join(result)               #We convert the concatenated result into a string
+
+    return (bin_val)                        #We return the converted binary  string
+
+
+
+   
