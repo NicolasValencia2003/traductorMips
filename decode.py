@@ -36,8 +36,8 @@ def R(instruction):
 
         result.append(registerToBin(instruction[1]))      #add rs to the converted binary list
 
-        result.append(bin(0).zfill(5))                    #rt is not used so we zero fill it   
-        result.append(bin(0).zfill(5))                    #rd is not used so we zero fill it   
+        result.append(bin(0).zfill(5)[:2])                    #rt is not used so we zero fill it   
+        result.append(bin(0).zfill(5)[:2])                    #rd is not used so we zero fill it   
 
 
      #SHAMT EXCEPTIONS
@@ -46,7 +46,7 @@ def R(instruction):
 
         shift_amount = instruction[3]                      #We must retrieve the shift amount
 
-        result.append(bin(0)[2:].zfill(5))                 #rs is not used so we zero fill it   
+        result.append(bin(0)[2:].zfill(5)[:2])                 #rs is not used so we zero fill it   
 
         result.append(registerToBin(instruction[2]))       #add rt to the converted binary list
 
@@ -79,7 +79,7 @@ def I(instruction):
     result = []
     imm = 0
 
-    # OPCODE
+    #OPCODE
     result.append(opcodeToBin(instruction[0])) #add opcode to the converted binary
 
 
@@ -87,8 +87,9 @@ def I(instruction):
     if instruction[0] == 'sw' or instruction[0] == 'lw' or instruction[0] == 'lh' or instruction[0] == 'lhu' or instruction[0] == 'sh' or instruction[0] == 'lb' or instruction[0] == 'lbu' or instruction[0] == 'sb' or instruction[0] == 'll' or instruction[0] == 'sc':
 
         
-        offset_base = instruction[2].split('(')         #We must separate the immediate offset from the base register
-        offset_base[1] = offset_base[:-1]               #We must remove the ')'from the register name
+        offset_base = instruction[2].split('(')                      #We must separate the immediate offset from the base register
+        offset_base[1] = offset_base[1].rstrip(offset_base[1][-1])   #We must remove the ')'from the register name
+
         
         result.append(registerToBin(offset_base[1]))               #add rs to the converted binary list
          
@@ -121,7 +122,7 @@ def I(instruction):
 
     elif instruction[0] == 'lui':
 
-        result.append(bin(0).zfill(5) )               # does not use rs so we zero fill it and add it to the converted binary list
+        result.append(bin(0).zfill(5)[:2])               # does not use rs so we zero fill it and add it to the converted binary list
 
         result.append(registerToBin(instruction[1]))  # add rt to the converted binary list
         

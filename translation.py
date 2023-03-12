@@ -3,27 +3,28 @@ from glossary import registers
 from glossary import opcode_funct
 from glossary import whatType
 
-def registerToBin(register_name):                      #Receives a register name, looks it up, and returns its binary value
+def registerToBin(register_name):                           #Receives a register name, looks it up, and returns its binary value
 
     return bin(registers[register_name])[2:].zfill(5)       #converts the register value to binary
 
-def opcodeToBin(opcode):                               #Receives an opcode, looks it up, and returns it binary value
+def opcodeToBin(opcode):                                    #Receives an opcode, looks it up, and returns it binary value
 
     return bin(opcode_funct[opcode][0])[2:].zfill(6)        #converts the opcode value to binary
 
-def functToBin(funct):                                 #Receives a funct, looks it up, and returns it binary value
+def functToBin(funct):                                      #Receives a funct, looks it up, and returns it binary value
 
     return bin(opcode_funct[funct][1])[2:].zfill(6)     #converts the funct value to binary
 
 #Takes hexa and decimal numbers
-def SignExtendedImmediateToBin(immediate):              #Receives an immediate and returns it binary value
+def SignExtendedImmediateToBin(immediate):                  #Receives an immediate and returns it binary value
 
-
-    if hexCheck(immediate):                              #check if the number is a hexa or a deci and converts it to binary
+    if hexCheck(immediate):                                 #check if the number is a hexa or a deci and converts it to binary
         imm = bin(int(immediate,16))[2:] 
     else:
         imm = bin(int(immediate))[2:] 
-
+    
+    imm = imm.zfill(4)                                   #make sure binary number is 4 bits long
+    
     if imm[0] == '0':                                    #if most significant bit is 0, zero extend the string
         return imm.zfill(16) 
     else:
@@ -31,14 +32,14 @@ def SignExtendedImmediateToBin(immediate):              #Receives an immediate a
 
             
 #Takes hexa and decimal numbers
-def ZeroExtendedImmediateToBin(immediate):              #Receives an immediate and returns it binary value
+def ZeroExtendedImmediateToBin(immediate):                  #Receives an immediate and returns it binary value
 
-    if hexCheck(immediate):                             #check if the number is a hexa or a deci and converts it to binary
+    if hexCheck(immediate):                                 #check if the number is a hexa or a deci and converts it to binary
         imm = bin(int(immediate,16))[2:] 
     else:
-        imm = bin(int(immediate))[2:] 
+        imm = bin(int(immediate))[2:]
 
-    return imm.zfill(16)                                #zero extends the binary string
+    return imm.zfill(16)                                    #zero extends the binary string
 
 
 #Takes hexa and decimal numbers
@@ -50,11 +51,11 @@ def addressToBin(address):
         return bin(int(imm/int(4,base=16)))[2:].zfill(26)               #divides by four to find value of tag, and converts the address to binary
     else:
         imm = int(address)
-        return bin(int(imm/4)).zfill(26)                                #divides by four to find value of tag, and converts the address to binary
+        return bin(int(imm/4))[2:].zfill(26)                                #divides by four to find value of tag, and converts the address to binary
 
 
 #Takes hexa and decimal numbers
-def shiftToBin(shift):                                  #Receives a shift amount and returns it binary value
+def shiftToBin(shift):                                      #Receives a shift amount and returns it binary value
 
     if hexCheck(shift):                             #check if the number is a hexa or a deci and converts it to binary
         imm = bin(int(shift,16))[2:] 
@@ -65,7 +66,7 @@ def shiftToBin(shift):                                  #Receives a shift amount
 
 
 #Takes hexa and decimal numbers
-def branchToBin(branch):                                #Receives a branch address and returns it binary value
+def branchToBin(branch):                                    #Receives a branch address and returns it binary value
 
 
     if hexCheck(branch):
@@ -82,12 +83,11 @@ def branchToBin(branch):                                #Receives a branch addre
         return bin(branch_address)[2:].zfill(16)            #converts the branch address to binary
 
 
-def hexCheck(string):                                   #checks if string contains a hexadecimal number
+def hexCheck(string):                                       #checks if string contains a hexadecimal number
 
     if len(string) > 1:
         if string[0] == '0' and string[1] == 'x':
             return True
     return False
-
 
 
