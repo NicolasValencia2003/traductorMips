@@ -36,35 +36,36 @@ registers = {
 
 #ASSIGNS A TYPE BASED ON INTRUCTION
 whatType = {
-    'add': r, 'sll': r, 'and': r, 'nor': r,
-    'or': r, 'slt': r,  'srl': r, 'sub': r,
-    'addu' : r, 'jr' : r, 'nor' : r, 'sltu' : r,
-    'subu' : r, 'div' : r, 'divu' : r, 'mfhi' : r,
-    'mflo' : r, 'sltu' : r, 'mult' : r, 'multu' : r,
-    'sra' : r,
+    'add': 'r', 'sll': 'r', 'and': 'r', 'nor': 'r',
+    'or': 'r', 'slt': 'r',  'srl': 'r', 'sub': 'r',
+    'addu' : 'r', 'jr' : 'r', 'nor' : 'r', 'sltu' : 'r',
+    'subu' : 'r', 'div' : 'r', 'divu' : 'r', 'mfhi' : 'r',
+    'mflo' : 'r', 'sltu' : 'r', 'mult' : 'r', 'multu' : 'r',
+    'sra' : 'r',
     
-    'addi': i, 'lw': i, 'beq': i, 'sw': i,
-    'andi': i, 'addiu' : i, 'bne' : i, 'lbu' : i, 
-    'lhu' : i ,'ll' : i,'lui' : i, 'ori' : i, 
-    'slti' : i, 'sltiu' : i, 'sb' : i, 'sc' : i, 
-    'sh' : i, 'lwcl' : i, 'ldcl' : i , 'swcl' : i , 
-    'sdcl' : i,
+    'addi': 'i', 'lw': 'i', 'beq': 'i', 'sw': 'i',
+    'andi': 'i', 'addiu' : 'i', 'bne' : 'i', 'lbu' : 'i',
+    'lhu' : 'i' ,'ll' : 'i','lui' : 'i', 'ori' : 'i', 
+    'slti' : 'i', 'sltiu' : 'i', 'sb' : 'i', 'sc' : 'i', 
+    'sh' : 'i', 'lwcl' : 'i', 'ldcl' : 'i' , 'swcl' : 'i' , 
+    'sdcl' : 'i',
 
-    'j': j , 'jal': j
+    'j': 'j' , 'jal': 'j'
 }
+
 
 #USED TO CALCULATE NUMBER OF CYCLES OF EACH INSTRUCTION
 def cycles(inst_type):
 
-    if whatTypep[inst_type] == r:
+    if whatType[inst_type] == 'r':
         return 4
 
-    if whatTypep[inst_type] == i:
+    if whatType[inst_type] == 'i':
         if inst_type == 'lw':
             return 5
         return 4
 
-    if whatTypep[inst_type] == j:
+    if whatType[inst_type] == 'j':
         if inst_type == 'jal':
             return 4
         return 3
